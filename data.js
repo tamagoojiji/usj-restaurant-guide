@@ -197,26 +197,30 @@ const RESTAURANTS = [
     url: "https://www.usj.co.jp/web/ja/jp/restaurants/saido",
     area: "ニューヨーク",
     areaId: "newyork",
-    genre: "和食（うどん・天ぷら・丼など）",
-    budget: "¥1,500〜¥2,500",
-    budgetMin: 1500,
+    genre: "和食（御膳スタイル）",
+    budget: "¥2,600〜¥3,800",
+    budgetMin: 2600,
     seatType: "テーブル席",
     capacity: "中程度",
     peakTime: "11:30〜13:30",
     recommendedTime: "11時頃 or 14時以降",
     crowdLevel: "普通",
     character: null,
-    kidsFriendly: "キッズメニューあり、ハイチェア完備、うどんは子どもが食べやすい",
+    kidsFriendly: "お子様御膳あり（¥1,200）、ハイチェア完備、うどんは子どもが食べやすい",
     mainMenu: [
-      "うどん各種",
-      "天ぷらセット",
-      "丼もの"
+      "牛ステーキ丼御膳 ¥3,800",
+      "海鮮丼御膳 ¥3,800",
+      "天ぷら御膳 ¥3,200",
+      "とんかつ御膳 ¥3,200",
+      "阿波尾鶏と肉味噌うどん御膳 ¥2,600"
     ],
-    dessertMenu: null,
+    dessertMenu: [
+      "NYチーズケーキ＆ほうじ茶の和風パフェ ¥1,500"
+    ],
     collab: null,
     collabMenu: null,
-    features: "パーク内唯一の本格和食レストラン。洋食に飽きた時に重宝。",
-    foodCategories: ["和食"]
+    features: "パーク内唯一の本格和食レストラン。御膳スタイルで洋食に飽きた時に重宝。",
+    foodCategories: ["和食", "デザート・スイーツ"]
   },
   {
     id: "dragons",
