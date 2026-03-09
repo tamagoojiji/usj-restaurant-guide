@@ -29,6 +29,7 @@ const RESTAURANTS = [
       "アメリカン・アップルクランブルパイ ¥600",
       "アメリカン・チョコブラウニー ¥600"
     ],
+    kidsMenu: ["キッズ・ハンバーガーセット ¥1,000"],
     collab: null,
     collabMenu: null,
     features: "1950年代アメリカンダイナーを再現。席数が多く回転も早い。",
@@ -59,6 +60,7 @@ const RESTAURANTS = [
       "ティムのチョコレートプリン&コーヒーゼリー ¥600",
       "ミニオンのバナナムース&ブルーレモンゼリー ¥600"
     ],
+    kidsMenu: ["ミニオン・キッズセット ¥1,000"],
     collab: null,
     collabMenu: null,
     features: "パーク内最大級の座席数を誇るフードコート形式。万人向けメニュー豊富。",
@@ -90,6 +92,7 @@ const RESTAURANTS = [
       "ストロベリー・パフェ ¥650",
       "ティラミス ¥650"
     ],
+    kidsMenu: ["ミニオン・プレート・セット ¥1,800", "スヌーピー・プレートセット ¥1,800"],
     collab: null,
     collabMenu: null,
     features: "メインエリアから少し離れているため比較的空いている穴場。恐竜の世界観。",
@@ -120,6 +123,7 @@ const RESTAURANTS = [
     dessertMenu: [
       "ティラミス ¥500"
     ],
+    kidsMenu: null,
     collab: null,
     collabMenu: null,
     features: "ニューヨークスタイルの大きなピザ。提供が早く回転も良い穴場。コスパ◎",
@@ -153,6 +157,7 @@ const RESTAURANTS = [
       "ハテナブロック・ティラミス ¥1,100",
       "ダブルチェリーのチョコレートカップケーキ ¥1,100"
     ],
+    kidsMenu: ["キッズ・プレート (スクエア) ¥2,200", "キッズ・プレート (ボウル) ¥2,200", "ハンバーガー・キッズセット ¥1,800", "カレー・キッズセット ¥1,400"],
     collab: null,
     collabMenu: null,
     features: "マリオの世界観を再現。キノコやスター型のキャラクターフードが楽しめる。",
@@ -186,6 +191,7 @@ const RESTAURANTS = [
       "バナナタルト ¥1,200",
       "ティラミス ¥1,200"
     ],
+    kidsMenu: ["キッズ・サンドウィッチセット ¥1,200"],
     collab: null,
     collabMenu: null,
     features: "パーク内の高級レストラン。落ち着いた雰囲気でゆっくり食事できる。",
@@ -217,6 +223,7 @@ const RESTAURANTS = [
     dessertMenu: [
       "NYチーズケーキ＆ほうじ茶の和風パフェ ¥1,500"
     ],
+    kidsMenu: ["お子様御膳 ¥1,200"],
     collab: null,
     collabMenu: null,
     features: "パーク内唯一の本格和食レストラン。御膳スタイルで洋食に飽きた時に重宝。",
@@ -244,6 +251,7 @@ const RESTAURANTS = [
       "ドラゴンズ・パール・コンボ（ジャージャー麺）¥1,800"
     ],
     dessertMenu: null,
+    kidsMenu: null,
     collab: null,
     collabMenu: null,
     features: "中華料理レストラン。中華を選ぶ人が少ないため比較的空いている穴場。",
@@ -276,6 +284,7 @@ const RESTAURANTS = [
       "糖蜜タルト ¥800",
       "バタービール™アイスクリーム ¥550"
     ],
+    kidsMenu: ["サンドウィッチ・キッズプレート ¥1,800", "カレー・キッズプレート ¥1,400"],
     collab: null,
     collabMenu: null,
     features: "ホグズミード村の食堂を再現。バタービールが飲める唯一のレストラン。",
@@ -306,6 +315,7 @@ const RESTAURANTS = [
     dessertMenu: [
       "JAWSがくるぞ！クリームソーダ・ロールケーキ ¥600"
     ],
+    kidsMenu: ["アミティ・キッズ・セット ¥1,000"],
     collab: null,
     collabMenu: null,
     features: "ジョーズの隣にある港町の雰囲気。比較的空いている穴場。",
@@ -337,6 +347,7 @@ const RESTAURANTS = [
       "ウィンター・チーズケーキ ¥850",
       "スヌーピーまん～カスタード～ ¥800"
     ],
+    kidsMenu: ["スヌーピー・キッズセット【パンケーキ】 ¥1,000", "スヌーピー・キッズセット【サンドウィッチ】 ¥1,000"],
     collab: null,
     collabMenu: null,
     features: "子連れに一番人気。ワンダーランド中心部でアトラクション合間の食事に最適。",
@@ -367,6 +378,7 @@ const RESTAURANTS = [
       "オトモアイルーのチョコレートプリン マグカップ付き ¥1,600",
       "ラバラ・バリナサワーチェリー＆ホワイトムース ¥1,000"
     ],
+    kidsMenu: ["サポート部隊アイルー・キッズセット ¥1,400"],
     collab: "モンスターハンター ワイルズ",
     collabMenu: ["限定コースターセット ¥3,500", "オトモアイルーのチョコレートプリン マグカップ付き ¥1,600"],
     features: "モンスターハンターの世界観を再現した創作料理。ゲームファンに人気。",
@@ -387,6 +399,7 @@ const RESTAURANTS = [
     recommendedTime: "11時前 or 14時以降",
     crowdLevel: "普通",
     character: null,
+    kidsMenu: ["スタジオ・スターズ・キッズセット ¥1,000"],
     collab: "25周年スペシャル",
     collabMenu: ["25周年スペシャルプレート ¥25,000（4名様分）", "25周年アニバーサリー・ドリンクカップ ¥1,800"],
     kidsFriendly: "キッズメニューあり（¥1,000）、ハイチェア完備、デザート充実",
@@ -425,6 +438,7 @@ const RESTAURANTS = [
       "五条悟のムース～ヨーグルト&ブルーベリー～ ¥1,000",
       "呪術高専のグレープフルーツ・レモネード ¥800"
     ],
+    kidsMenu: null,
     kidsFriendly: "パンは小さい子にも食べさせやすい、テイクアウト可",
     mainMenu: [
       "呪術高専1年のサンドウィッチセット ¥2,100",

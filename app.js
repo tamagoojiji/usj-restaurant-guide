@@ -205,6 +205,13 @@ function showResult() {
           </div>
         ` : ''}
 
+        ${r.kidsMenu && r.kidsMenu.length > 0 ? `
+          <div class="result-menu">
+            <p class="menu-title">👶 キッズメニュー</p>
+            <ul>${r.kidsMenu.map(m => `<li>${m}</li>`).join("")}</ul>
+          </div>
+        ` : ''}
+
         ${r.collabMenu ? `
           <div class="result-collab-menu">
             <p class="menu-title">🎉 コラボメニュー</p>
