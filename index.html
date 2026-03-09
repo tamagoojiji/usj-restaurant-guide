@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USJレストラン診断 | あなたにぴったりのレストランを見つけよう</title>
+  <meta name="description" content="5つの質問に答えるだけで、USJであなたにぴったりのレストランがわかる診断！時間帯・好み・エリアから最適な食事スポットを提案。">
+  <meta property="og:title" content="USJレストラン診断">
+  <meta property="og:description" content="5つの質問であなたにぴったりのUSJレストランを診断！">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- トップ画面 -->
+  <div id="screen-top" class="screen">
+    <div class="container">
+      <div class="top-content">
+        <div class="top-icon">🍽️</div>
+        <h1 class="top-title">USJレストラン診断</h1>
+        <p class="top-subtitle">5つの質問に答えるだけで<br>あなたにぴったりのレストランが見つかる！</p>
+        <button class="btn-start" onclick="startDiagnosis()">診断スタート</button>
+        <p class="top-note">※ 食べ歩きフードは本診断の対象外です</p>
+      </div>
+      <div class="top-restaurants">
+        <h3>対象レストラン</h3>
+        <p class="restaurant-count">14<span> 施設</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 質問画面 -->
+  <div id="screen-question" class="screen hidden">
+    <div class="container" id="question-container"></div>
+  </div>
+
+  <!-- 結果画面 -->
+  <div id="screen-result" class="screen hidden">
+    <div class="container" id="result-container"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
