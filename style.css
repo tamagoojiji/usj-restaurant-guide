@@ -377,3 +377,13 @@ body {
 .btn-top:active {
   transform: scale(0.97);
 }
+
+.official-link {
+  color: #e63946;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.official-link:hover {
+  text-decoration: underline;
+}

@@ -165,7 +165,14 @@ function showResult() {
     <p class="result-subtitle">${timeLabel}の食事にぴったり！</p>
     <p class="result-note">※ 食べ歩きフードは本診断の対象外です</p>
 
-    ${top3.map((r, i) => `
+    ${top3.map((r, i) => {
+      const isDessertMode = answers.food === "dessert";
+      let budgetDisplay = r.budget;
+      if (isDessertMode && r.dessertMenu && r.dessertMenu.length > 0) {
+        const prices = [...new Set(r.dessertMenu.map(d => d.match(/¥[\d,]+/)?.[0]).filter(Boolean))];
+        budgetDisplay = prices.length > 1 ? prices.join("〜") : prices[0] || r.budget;
+      }
+      return `
       <div class="result-card ${i === 0 ? 'top-pick' : ''}">
         <div class="result-rank">${i === 0 ? '🏆 第1位' : i === 1 ? '🥈 第2位' : '🥉 第3位'}</div>
         <h3 class="result-name">${r.name}</h3>
@@ -173,9 +180,10 @@ function showResult() {
         <div class="result-info">
           <div class="info-row"><span class="info-label">📍 エリア</span><span>${r.area}</span></div>
           <div class="info-row"><span class="info-label">🍽️ ジャンル</span><span>${r.genre}</span></div>
-          <div class="info-row"><span class="info-label">💰 予算</span><span>${r.budget}</span></div>
+          <div class="info-row"><span class="info-label">💰 予算</span><span>${budgetDisplay}${isDessertMode ? '（デザート）' : ''}</span></div>
           <div class="info-row"><span class="info-label">🪑 座席</span><span>${r.seatType}</span></div>
           <div class="info-row"><span class="info-label">👶 子連れ</span><span>${r.kidsFriendly}</span></div>
+          <div class="info-row"><span class="info-label">🔗 公式</span><span><a href="${r.url}" target="_blank" rel="noopener" class="official-link">公式サイト</a></span></div>
         </div>
 
         ${r.reasons.length > 0 ? `
@@ -189,6 +197,13 @@ function showResult() {
           <p class="menu-title">📋 主なメニュー</p>
           <ul>${r.mainMenu.map(m => `<li>${m}</li>`).join("")}</ul>
         </div>
+
+        ${r.dessertMenu && r.dessertMenu.length > 0 ? `
+          <div class="result-menu">
+            <p class="menu-title">🍰 デザートメニュー</p>
+            <ul>${r.dessertMenu.map(m => `<li>${m}</li>`).join("")}</ul>
+          </div>
+        ` : ''}
 
         ${r.collabMenu ? `
           <div class="result-collab-menu">
@@ -205,7 +220,7 @@ function showResult() {
 
         <p class="result-features">${r.features}</p>
       </div>
-    `).join("")}
+    `;}).join("")}
 
     <button class="btn-restart" onclick="startDiagnosis()">もう一度診断する</button>
     <button class="btn-top" onclick="showScreen('screen-top')">トップに戻る</button>
