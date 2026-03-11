@@ -1,239 +1,534 @@
 // USJレストラン診断 メインロジック
+(function () {
+  "use strict";
 
-let answers = {};
-let currentQuestion = 0;
+  // === LIFF設定 ===
+  var LIFF_ID = "2009123941-Bq6sKOL";
+  var GAS_URL = "https://script.google.com/macros/s/AKfycbzeFQtwr0M_UsMDjXg-lv7KtUkVossqeuqeJzjfYorMmYhsk4ccyhIYNif0F0kLgKxF/exec";
 
-const QUESTIONS = [
-  { key: "time", title: "いつ食べたい？", options: TIME_SLOTS },
-  { key: "food", title: "何が食べたい？", options: FOOD_CATEGORIES },
-  { key: "character", title: "好きなキャラ・世界観は？", options: CHARACTERS },
-  { key: "area", title: "遊んでいるエリアは？", options: AREAS },
-  { key: "priority", title: "一番重視するのは？", options: PRIORITIES }
-];
+  // === ユーザー情報 ===
+  var lineUid = null;
+  var lineDisplayName = null;
+  var userRegistered = false;
 
-function init() {
-  showScreen("screen-top");
-}
+  // === 診断状態 ===
+  var answers = {};
+  var currentQuestion = 0;
 
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  window.scrollTo(0, 0);
-}
+  var QUESTIONS = [
+    { key: "time", title: "いつ食べたい？", options: TIME_SLOTS },
+    { key: "food", title: "何が食べたい？", options: FOOD_CATEGORIES },
+    { key: "character", title: "好きなキャラ・世界観は？", options: CHARACTERS },
+    { key: "area", title: "遊んでいるエリアは？", options: AREAS },
+    { key: "priority", title: "一番重視するのは？", options: PRIORITIES }
+  ];
 
-function startDiagnosis() {
-  answers = {};
-  currentQuestion = 0;
-  renderQuestion();
-  showScreen("screen-question");
-}
+  // === 画面ID ===
+  var screenIds = [
+    "screen-loading", "screen-liff-error", "screen-register",
+    "screen-top", "screen-question", "screen-result"
+  ];
 
-function renderQuestion() {
-  const q = QUESTIONS[currentQuestion];
-  const container = document.getElementById("question-container");
-  const progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
+  // === 画面遷移 ===
+  function showScreen(id) {
+    screenIds.forEach(function (sid) {
+      var el = document.getElementById(sid);
+      if (el) el.classList.add("hidden");
+    });
+    document.getElementById(id).classList.remove("hidden");
+    window.scrollTo(0, 0);
+  }
 
-  container.innerHTML = `
-    <div class="progress-bar">
-      <div class="progress-fill" style="width: ${progress}%"></div>
-    </div>
-    <p class="question-number">Q${currentQuestion + 1} / ${QUESTIONS.length}</p>
-    <h2 class="question-title">${q.title}</h2>
-    <div class="options-grid">
-      ${q.options.map(opt => `
-        <button class="option-btn" onclick="selectAnswer('${q.key}', '${opt.id}')">
-          <span class="option-icon">${opt.icon}</span>
-          <span class="option-label">${opt.label}</span>
-        </button>
-      `).join("")}
-    </div>
-  `;
-}
+  // ============================================================
+  //  LIFF初期化
+  // ============================================================
+  function initLiff() {
+    liff.init({ liffId: LIFF_ID }).then(function () {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+      return liff.getProfile();
+    }).then(function (profile) {
+      if (!profile) return;
+      lineUid = profile.userId;
+      lineDisplayName = profile.displayName;
 
-function selectAnswer(key, value) {
-  answers[key] = value;
+      checkUserRegistration();
+    }).catch(function (err) {
+      console.error("LIFF init error:", err);
+      showScreen("screen-liff-error");
+    });
+  }
 
-  // ボタンを一瞬ハイライト
-  event.currentTarget.classList.add("selected");
+  // ============================================================
+  //  ユーザー登録チェック（EP診断と共有、キャッシュ優先）
+  // ============================================================
+  function checkUserRegistration() {
+    var cachedRegistered = localStorage.getItem("ep_registered_" + lineUid);
+    var localUser = localStorage.getItem("ep_user_" + lineUid);
 
-  setTimeout(() => {
-    currentQuestion++;
-    if (currentQuestion < QUESTIONS.length) {
-      renderQuestion();
-    } else {
-      showResult();
+    if (cachedRegistered === "true" || localUser) {
+      userRegistered = true;
+      showScreen("screen-top");
+
+      // バックグラウンドでGAS同期
+      if (GAS_URL) {
+        fetch(GAS_URL + "?action=checkUser&uid=" + encodeURIComponent(lineUid))
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (!data.registered) {
+              localStorage.removeItem("ep_registered_" + lineUid);
+            }
+          })
+          .catch(function () { /* バックグラウンドなので無視 */ });
+      }
+      return;
     }
-  }, 200);
-}
 
-function scoreRestaurants() {
-  return RESTAURANTS.map(r => {
-    let score = 0;
-    let reasons = [];
+    // キャッシュなし → GASに問い合わせ
+    if (!GAS_URL) {
+      showRegisterScreen();
+      return;
+    }
 
-    // 1. フード分類マッチ
-    if (answers.food !== "any") {
-      const foodLabel = FOOD_CATEGORIES.find(f => f.id === answers.food)?.label;
-      if (foodLabel && r.foodCategories.includes(foodLabel)) {
-        score += 30;
-        reasons.push(`${foodLabel}が食べられる`);
+    fetch(GAS_URL + "?action=checkUser&uid=" + encodeURIComponent(lineUid))
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.registered) {
+          userRegistered = true;
+          localStorage.setItem("ep_registered_" + lineUid, "true");
+          showScreen("screen-top");
+        } else {
+          showRegisterScreen();
+        }
+      })
+      .catch(function () {
+        showRegisterScreen();
+      });
+  }
+
+  // ============================================================
+  //  登録画面
+  // ============================================================
+  function showRegisterScreen() {
+    showScreen("screen-register");
+
+    var welcomeEl = document.getElementById("register-welcome");
+    if (lineDisplayName) {
+      welcomeEl.textContent = lineDisplayName + "さん、ようこそ！";
+    }
+
+    // 生年月日プルダウン生成
+    var yearSelect = document.getElementById("reg-year");
+    var monthSelect = document.getElementById("reg-month");
+    var daySelect = document.getElementById("reg-day");
+
+    if (yearSelect.options.length <= 1) {
+      var currentYear = new Date().getFullYear();
+      for (var y = currentYear; y >= 1930; y--) {
+        var opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y + "年";
+        yearSelect.appendChild(opt);
+      }
+      for (var m = 1; m <= 12; m++) {
+        var opt2 = document.createElement("option");
+        opt2.value = m;
+        opt2.textContent = m + "月";
+        monthSelect.appendChild(opt2);
+      }
+      for (var d = 1; d <= 31; d++) {
+        var opt3 = document.createElement("option");
+        opt3.value = d;
+        opt3.textContent = d + "日";
+        daySelect.appendChild(opt3);
+      }
+    }
+
+    // 性別ボタン
+    var selectedGender = null;
+    var genderBtns = document.querySelectorAll(".gender-btn");
+    genderBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        genderBtns.forEach(function (b) { b.classList.remove("selected"); });
+        btn.classList.add("selected");
+        selectedGender = btn.getAttribute("data-gender");
+        updateRegisterBtn();
+      });
+    });
+
+    // バリデーション
+    var registerBtn = document.getElementById("register-btn");
+    var privacyCheckbox = document.getElementById("privacy-checkbox");
+
+    function updateRegisterBtn() {
+      var valid = yearSelect.value && monthSelect.value && daySelect.value
+        && selectedGender && privacyCheckbox.checked;
+      registerBtn.disabled = !valid;
+    }
+
+    yearSelect.addEventListener("change", updateRegisterBtn);
+    monthSelect.addEventListener("change", updateRegisterBtn);
+    daySelect.addEventListener("change", updateRegisterBtn);
+    privacyCheckbox.addEventListener("change", updateRegisterBtn);
+
+    // 登録ボタン
+    registerBtn.addEventListener("click", function () {
+      if (registerBtn.disabled) return;
+
+      var birthday = yearSelect.value + "-" +
+        String(monthSelect.value).padStart(2, "0") + "-" +
+        String(daySelect.value).padStart(2, "0");
+
+      var userData = {
+        uid: lineUid,
+        name: lineDisplayName,
+        birthday: birthday,
+        gender: selectedGender,
+        registeredAt: new Date().toISOString()
+      };
+
+      // ローカル保存（EP診断と共有）
+      localStorage.setItem("ep_user_" + lineUid, JSON.stringify(userData));
+      localStorage.setItem("ep_registered_" + lineUid, "true");
+      userRegistered = true;
+
+      // GASに送信
+      if (GAS_URL) {
+        fetch(GAS_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "registerUser", data: userData })
+        }).catch(function (err) {
+          console.error("GAS register error:", err);
+        });
+      }
+
+      showScreen("screen-top");
+    });
+
+    // プライバシーポリシーリンク
+    var privacyLinkReg = document.getElementById("privacy-link-reg");
+    if (privacyLinkReg) {
+      privacyLinkReg.addEventListener("click", function (e) {
+        e.preventDefault();
+        document.getElementById("privacy-modal").classList.remove("hidden");
+      });
+    }
+  }
+
+  // ============================================================
+  //  プライバシーポリシーモーダル
+  // ============================================================
+  function initPrivacyModal() {
+    var modal = document.getElementById("privacy-modal");
+    var closeBtn = document.getElementById("modal-close");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        modal.classList.add("hidden");
+      });
+    }
+    if (modal) {
+      modal.addEventListener("click", function (e) {
+        if (e.target === modal) modal.classList.add("hidden");
+      });
+    }
+  }
+
+  // ============================================================
+  //  診断開始
+  // ============================================================
+  function startDiagnosis() {
+    answers = {};
+    currentQuestion = 0;
+    renderQuestion();
+    showScreen("screen-question");
+  }
+
+  function renderQuestion() {
+    var q = QUESTIONS[currentQuestion];
+    var container = document.getElementById("question-container");
+    var progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
+
+    container.innerHTML =
+      '<div class="progress-bar">' +
+        '<div class="progress-fill" style="width: ' + progress + '%"></div>' +
+      '</div>' +
+      '<p class="question-number">Q' + (currentQuestion + 1) + ' / ' + QUESTIONS.length + '</p>' +
+      '<h2 class="question-title">' + q.title + '</h2>' +
+      '<div class="options-grid">' +
+        q.options.map(function (opt) {
+          return '<button class="option-btn" data-key="' + q.key + '" data-value="' + opt.id + '">' +
+            '<span class="option-icon">' + opt.icon + '</span>' +
+            '<span class="option-label">' + opt.label + '</span>' +
+          '</button>';
+        }).join("") +
+      '</div>';
+
+    // イベント委譲
+    container.querySelectorAll(".option-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        selectAnswer(btn.getAttribute("data-key"), btn.getAttribute("data-value"), btn);
+      });
+    });
+  }
+
+  function selectAnswer(key, value, btnEl) {
+    answers[key] = value;
+    btnEl.classList.add("selected");
+
+    setTimeout(function () {
+      currentQuestion++;
+      if (currentQuestion < QUESTIONS.length) {
+        renderQuestion();
       } else {
-        score -= 20;
+        showResult();
       }
-    }
+    }, 200);
+  }
 
-    // 2. キャラクターマッチ
-    if (answers.character !== "none") {
-      const charLabel = CHARACTERS.find(c => c.id === answers.character)?.label;
-      const rCharId = r.character ? CHARACTER_MAP[r.character] : null;
-      if (rCharId === answers.character) {
-        score += 25;
-        reasons.push(`${charLabel}の世界観`);
+  // ============================================================
+  //  スコアリング
+  // ============================================================
+  function scoreRestaurants() {
+    return RESTAURANTS.map(function (r) {
+      var score = 0;
+      var reasons = [];
+
+      // 1. フード分類マッチ
+      if (answers.food !== "any") {
+        var foodLabel = null;
+        FOOD_CATEGORIES.forEach(function (f) { if (f.id === answers.food) foodLabel = f.label; });
+        if (foodLabel && r.foodCategories.indexOf(foodLabel) !== -1) {
+          score += 30;
+          reasons.push(foodLabel + "が食べられる");
+        } else {
+          score -= 20;
+        }
       }
-    }
 
-    // 3. エリアマッチ
-    if (answers.area !== "anywhere") {
-      const areaGroup = AREA_GROUP_MAP[answers.area] || [];
-      if (areaGroup.includes(r.areaId)) {
-        score += 20;
-        reasons.push(`${r.area}エリア内`);
-      } else {
-        score -= 5;
+      // 2. キャラクターマッチ
+      if (answers.character !== "none") {
+        var charLabel = null;
+        CHARACTERS.forEach(function (c) { if (c.id === answers.character) charLabel = c.label; });
+        var rCharId = r.character ? CHARACTER_MAP[r.character] : null;
+        if (rCharId === answers.character) {
+          score += 25;
+          reasons.push(charLabel + "の世界観");
+        }
       }
-    }
 
-    // 4. 時間帯による加点
-    if (answers.time === "morning" || answers.time === "afternoon") {
-      // 朝・おやつ時間帯は軽食やデザートを加点
-      if (r.foodCategories.includes("軽食") || r.foodCategories.includes("デザート・スイーツ")) {
-        score += 10;
-        if (answers.time === "afternoon") reasons.push("おやつ休憩にぴったり");
+      // 3. エリアマッチ
+      if (answers.area !== "anywhere") {
+        var areaGroup = AREA_GROUP_MAP[answers.area] || [];
+        if (areaGroup.indexOf(r.areaId) !== -1) {
+          score += 20;
+          reasons.push(r.area + "エリア内");
+        } else {
+          score -= 5;
+        }
       }
-    }
-    if (answers.time === "dinner") {
-      // ディナーはしっかり食べられる店を加点
-      if (r.budgetMin >= 1500) {
-        score += 5;
+
+      // 4. 時間帯による加点
+      if (answers.time === "morning" || answers.time === "afternoon") {
+        if (r.foodCategories.indexOf("軽食") !== -1 || r.foodCategories.indexOf("デザート・スイーツ") !== -1) {
+          score += 10;
+          if (answers.time === "afternoon") reasons.push("おやつ休憩にぴったり");
+        }
       }
-    }
+      if (answers.time === "dinner") {
+        if (r.budgetMin >= 1500) {
+          score += 5;
+        }
+      }
 
-    // 5. 重視ポイント
-    switch (answers.priority) {
-      case "avoid_crowd":
-        if (r.crowdLevel === "穴場") { score += 20; reasons.push("穴場で混雑回避"); }
-        if (r.crowdLevel === "混雑") score -= 15;
-        break;
-      case "kids":
-        if (r.kidsFriendly && r.kidsFriendly.includes("キッズメニュー充実")) { score += 20; reasons.push("キッズメニュー充実"); }
-        else if (r.kidsFriendly && r.kidsFriendly.includes("キッズメニュー")) { score += 10; reasons.push("キッズメニューあり"); }
-        if (r.character) score += 5;
-        break;
-      case "atmosphere":
-        if (r.character) { score += 15; reasons.push(`${r.character}の世界観が楽しめる`); }
-        if (r.seatType.includes("着席サービス")) score += 10;
-        break;
-      case "cospa":
-        if (r.budgetMin <= 1200) { score += 15; reasons.push(`予算${r.budget}でコスパ◎`); }
-        if (r.budgetMin >= 3000) score -= 10;
-        break;
-      case "relax":
-        if (r.seatType.includes("着席サービス")) { score += 20; reasons.push("テーブルサービスでゆっくり"); }
-        if (r.crowdLevel === "穴場") { score += 10; reasons.push("空いていてゆっくりできる"); }
-        if (r.crowdLevel === "混雑") score -= 10;
-        break;
-    }
+      // 5. 重視ポイント
+      switch (answers.priority) {
+        case "avoid_crowd":
+          if (r.crowdLevel === "穴場") { score += 20; reasons.push("穴場で混雑回避"); }
+          if (r.crowdLevel === "混雑") score -= 15;
+          break;
+        case "kids":
+          if (r.kidsFriendly && r.kidsFriendly.indexOf("キッズメニュー充実") !== -1) { score += 20; reasons.push("キッズメニュー充実"); }
+          else if (r.kidsFriendly && r.kidsFriendly.indexOf("キッズメニュー") !== -1) { score += 10; reasons.push("キッズメニューあり"); }
+          if (r.character) score += 5;
+          break;
+        case "atmosphere":
+          if (r.character) { score += 15; reasons.push(r.character + "の世界観が楽しめる"); }
+          if (r.seatType.indexOf("着席サービス") !== -1) score += 10;
+          break;
+        case "cospa":
+          if (r.budgetMin <= 1200) { score += 15; reasons.push("予算" + r.budget + "でコスパ◎"); }
+          if (r.budgetMin >= 3000) score -= 10;
+          break;
+        case "relax":
+          if (r.seatType.indexOf("着席サービス") !== -1) { score += 20; reasons.push("テーブルサービスでゆっくり"); }
+          if (r.crowdLevel === "穴場") { score += 10; reasons.push("空いていてゆっくりできる"); }
+          if (r.crowdLevel === "混雑") score -= 10;
+          break;
+      }
 
-    // 6. コラボ加点（コラボ中はちょっとだけ加点）
-    if (r.collab) {
-      score += 3;
-    }
+      // 6. コラボ加点
+      if (r.collab) {
+        score += 3;
+      }
 
-    return { ...r, score, reasons: [...new Set(reasons)] };
-  }).sort((a, b) => b.score - a.score);
-}
+      // reasons重複排除
+      var uniqueReasons = [];
+      reasons.forEach(function (reason) {
+        if (uniqueReasons.indexOf(reason) === -1) uniqueReasons.push(reason);
+      });
 
-function showResult() {
-  const ranked = scoreRestaurants();
-  const top3 = ranked.slice(0, 3);
-  const container = document.getElementById("result-container");
+      return { name: r.name, area: r.area, areaId: r.areaId, genre: r.genre, budget: r.budget,
+        budgetMin: r.budgetMin, seatType: r.seatType, kidsFriendly: r.kidsFriendly,
+        character: r.character, crowdLevel: r.crowdLevel, collab: r.collab, collabMenu: r.collabMenu,
+        foodCategories: r.foodCategories, mainMenu: r.mainMenu, dessertMenu: r.dessertMenu,
+        kidsMenu: r.kidsMenu, peakTime: r.peakTime, recommendedTime: r.recommendedTime,
+        features: r.features, url: r.url, score: score, reasons: uniqueReasons };
+    }).sort(function (a, b) { return b.score - a.score; });
+  }
 
-  const timeLabel = TIME_SLOTS.find(t => t.id === answers.time)?.label || "";
+  // ============================================================
+  //  結果表示
+  // ============================================================
+  function showResult() {
+    var ranked = scoreRestaurants();
+    var top3 = ranked.slice(0, 3);
+    var container = document.getElementById("result-container");
 
-  container.innerHTML = `
-    <h2 class="result-title">あなたにおすすめのレストラン</h2>
-    <p class="result-subtitle">${timeLabel}の食事にぴったり！</p>
-    <p class="result-note">※ 食べ歩きフードは本診断の対象外です</p>
+    var timeLabel = "";
+    TIME_SLOTS.forEach(function (t) { if (t.id === answers.time) timeLabel = t.label; });
 
-    ${top3.map((r, i) => {
-      const isDessertMode = answers.food === "dessert";
-      let budgetDisplay = r.budget;
+    var isDessertMode = answers.food === "dessert";
+
+    var html = '<h2 class="result-title">あなたにおすすめのレストラン</h2>' +
+      '<p class="result-subtitle">' + timeLabel + 'の食事にぴったり！</p>' +
+      '<p class="result-note">※ 食べ歩きフードは本診断の対象外です</p>';
+
+    top3.forEach(function (r, i) {
+      var budgetDisplay = r.budget;
       if (isDessertMode && r.dessertMenu && r.dessertMenu.length > 0) {
-        const prices = [...new Set(r.dessertMenu.map(d => d.match(/¥[\d,]+/)?.[0]).filter(Boolean))];
+        var priceSet = {};
+        r.dessertMenu.forEach(function (d) {
+          var match = d.match(/¥[\d,]+/);
+          if (match) priceSet[match[0]] = true;
+        });
+        var prices = Object.keys(priceSet);
         budgetDisplay = prices.length > 1 ? prices.join("〜") : prices[0] || r.budget;
       }
-      return `
-      <div class="result-card ${i === 0 ? 'top-pick' : ''}">
-        <div class="result-rank">${i === 0 ? '🏆 第1位' : i === 1 ? '🥈 第2位' : '🥉 第3位'}</div>
-        <h3 class="result-name">${r.name}</h3>
-        ${r.collab ? `<div class="collab-badge">🎉 ${r.collab}コラボ中！</div>` : ''}
-        <div class="result-info">
-          <div class="info-row"><span class="info-label">📍 エリア</span><span>${r.area}</span></div>
-          <div class="info-row"><span class="info-label">🍽️ ジャンル</span><span>${r.genre}</span></div>
-          <div class="info-row"><span class="info-label">💰 予算</span><span>${budgetDisplay}${isDessertMode ? '（デザート）' : ''}</span></div>
-          <div class="info-row"><span class="info-label">🪑 座席</span><span>${r.seatType}</span></div>
-          <div class="info-row"><span class="info-label">👶 子連れ</span><span>${r.kidsFriendly}</span></div>
-          <div class="info-row"><span class="info-label">🔗 公式</span><span><a href="${r.url}" target="_blank" rel="noopener" class="official-link">公式サイト</a></span></div>
-        </div>
 
-        ${r.reasons.length > 0 ? `
-          <div class="result-reasons">
-            <p class="reasons-title">✅ おすすめポイント</p>
-            ${r.reasons.map(reason => `<span class="reason-tag">${reason}</span>`).join("")}
-          </div>
-        ` : ''}
+      html += '<div class="result-card ' + (i === 0 ? 'top-pick' : '') + '">' +
+        '<div class="result-rank">' + (i === 0 ? '🏆 第1位' : i === 1 ? '🥈 第2位' : '🥉 第3位') + '</div>' +
+        '<h3 class="result-name">' + r.name + '</h3>';
 
-        <div class="result-menu">
-          <p class="menu-title">📋 主なメニュー</p>
-          <ul>${r.mainMenu.map(m => `<li>${m}</li>`).join("")}</ul>
-        </div>
+      if (r.collab) {
+        html += '<div class="collab-badge">🎉 ' + r.collab + 'コラボ中！</div>';
+      }
 
-        ${r.dessertMenu && r.dessertMenu.length > 0 ? `
-          <div class="result-menu">
-            <p class="menu-title">🍰 デザートメニュー</p>
-            <ul>${r.dessertMenu.map(m => `<li>${m}</li>`).join("")}</ul>
-          </div>
-        ` : ''}
+      html += '<div class="result-info">' +
+        '<div class="info-row"><span class="info-label">📍 エリア</span><span>' + r.area + '</span></div>' +
+        '<div class="info-row"><span class="info-label">🍽️ ジャンル</span><span>' + r.genre + '</span></div>' +
+        '<div class="info-row"><span class="info-label">💰 予算</span><span>' + budgetDisplay + (isDessertMode ? '（デザート）' : '') + '</span></div>' +
+        '<div class="info-row"><span class="info-label">🪑 座席</span><span>' + r.seatType + '</span></div>' +
+        '<div class="info-row"><span class="info-label">👶 子連れ</span><span>' + r.kidsFriendly + '</span></div>' +
+        '<div class="info-row"><span class="info-label">🔗 公式</span><span><a href="' + r.url + '" target="_blank" rel="noopener" class="official-link">公式サイト</a></span></div>' +
+        '</div>';
 
-        ${r.kidsMenu && r.kidsMenu.length > 0 ? `
-          <div class="result-menu">
-            <p class="menu-title">👶 キッズメニュー</p>
-            <ul>${r.kidsMenu.map(m => `<li>${m}</li>`).join("")}</ul>
-          </div>
-        ` : ''}
+      if (r.reasons.length > 0) {
+        html += '<div class="result-reasons"><p class="reasons-title">✅ おすすめポイント</p>';
+        r.reasons.forEach(function (reason) {
+          html += '<span class="reason-tag">' + reason + '</span>';
+        });
+        html += '</div>';
+      }
 
-        ${r.collabMenu ? `
-          <div class="result-collab-menu">
-            <p class="menu-title">🎉 コラボメニュー</p>
-            <ul>${r.collabMenu.map(m => `<li>${m}</li>`).join("")}</ul>
-          </div>
-        ` : ''}
+      html += '<div class="result-menu"><p class="menu-title">📋 主なメニュー</p><ul>';
+      r.mainMenu.forEach(function (m) { html += '<li>' + m + '</li>'; });
+      html += '</ul></div>';
 
-        <div class="result-tips">
-          <p class="tips-title">💡 混雑回避のコツ</p>
-          <p>ピーク: ${r.peakTime}</p>
-          <p>おすすめ: ${r.recommendedTime}</p>
-        </div>
+      if (r.dessertMenu && r.dessertMenu.length > 0) {
+        html += '<div class="result-menu"><p class="menu-title">🍰 デザートメニュー</p><ul>';
+        r.dessertMenu.forEach(function (m) { html += '<li>' + m + '</li>'; });
+        html += '</ul></div>';
+      }
 
-        <p class="result-features">${r.features}</p>
-      </div>
-    `;}).join("")}
+      if (r.kidsMenu && r.kidsMenu.length > 0) {
+        html += '<div class="result-menu"><p class="menu-title">👶 キッズメニュー</p><ul>';
+        r.kidsMenu.forEach(function (m) { html += '<li>' + m + '</li>'; });
+        html += '</ul></div>';
+      }
 
-    <button class="btn-restart" onclick="startDiagnosis()">もう一度診断する</button>
-    <button class="btn-top" onclick="showScreen('screen-top')">トップに戻る</button>
-  `;
+      if (r.collabMenu) {
+        html += '<div class="result-collab-menu"><p class="menu-title">🎉 コラボメニュー</p><ul>';
+        r.collabMenu.forEach(function (m) { html += '<li>' + m + '</li>'; });
+        html += '</ul></div>';
+      }
 
-  showScreen("screen-result");
-}
+      html += '<div class="result-tips">' +
+        '<p class="tips-title">💡 混雑回避のコツ</p>' +
+        '<p>ピーク: ' + r.peakTime + '</p>' +
+        '<p>おすすめ: ' + r.recommendedTime + '</p>' +
+        '</div>' +
+        '<p class="result-features">' + r.features + '</p>' +
+        '</div>';
+    });
 
-document.addEventListener("DOMContentLoaded", init);
+    html += '<button class="btn-restart" id="btn-restart">もう一度診断する</button>' +
+      '<button class="btn-top" id="btn-top">トップに戻る</button>';
+
+    container.innerHTML = html;
+
+    document.getElementById("btn-restart").addEventListener("click", startDiagnosis);
+    document.getElementById("btn-top").addEventListener("click", function () { showScreen("screen-top"); });
+
+    showScreen("screen-result");
+
+    // GASに診断結果を保存
+    saveRestaurantDiagnosisResult(top3);
+  }
+
+  // ============================================================
+  //  診断結果をGASに保存
+  // ============================================================
+  function saveRestaurantDiagnosisResult(top3) {
+    if (!GAS_URL || !lineUid) return;
+
+    var answersStr = Object.keys(answers).map(function (k) {
+      return k + ":" + answers[k];
+    }).join(",");
+
+    var data = {
+      uid: lineUid,
+      name: lineDisplayName || "",
+      answers: answersStr,
+      result1: top3[0] ? top3[0].name : "",
+      result2: top3[1] ? top3[1].name : "",
+      result3: top3[2] ? top3[2].name : "",
+      diagnosedAt: new Date().toISOString()
+    };
+
+    fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "saveRestaurantDiagnosis", data: data })
+    }).catch(function (err) {
+      console.error("GAS save error:", err);
+    });
+  }
+
+  // ============================================================
+  //  初期化
+  // ============================================================
+  function init() {
+    initPrivacyModal();
+
+    // 診断スタートボタン（トップ画面）
+    var startBtn = document.querySelector("#screen-top .btn-start");
+    if (startBtn) {
+      startBtn.addEventListener("click", startDiagnosis);
+    }
+
+    initLiff();
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
