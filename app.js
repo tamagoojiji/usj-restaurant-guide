@@ -3,7 +3,7 @@
   "use strict";
 
   // === LIFF設定 ===
-  var LIFF_ID = "2009123941-Bq6sKOL";
+  var LIFF_ID = "2009123941-RzphFjOL";
   var GAS_URL = "https://script.google.com/macros/s/AKfycbzeFQtwr0M_UsMDjXg-lv7KtUkVossqeuqeJzjfYorMmYhsk4ccyhIYNif0F0kLgKxF/exec";
 
   // === ユーザー情報 ===
