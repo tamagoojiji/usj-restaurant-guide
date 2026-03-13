@@ -251,10 +251,15 @@
     var progress = ((currentQuestion + 1) / QUESTIONS.length) * 100;
 
     container.innerHTML =
-      '<div class="progress-bar">' +
-        '<div class="progress-fill" style="width: ' + progress + '%"></div>' +
+      '<div class="quiz-header">' +
+        '<button class="quiz-back-btn" id="quiz-back">&#8249; 戻る</button>' +
+        '<div class="progress-info">' +
+          '<span class="q-number">' + (currentQuestion + 1) + '</span> / <span class="q-total">' + QUESTIONS.length + '</span>' +
+        '</div>' +
+        '<div class="progress-bar">' +
+          '<div class="progress-fill" style="width: ' + progress + '%"></div>' +
+        '</div>' +
       '</div>' +
-      '<p class="question-number">Q' + (currentQuestion + 1) + ' / ' + QUESTIONS.length + '</p>' +
       '<h2 class="question-title">' + q.title + '</h2>' +
       '<div class="options-grid">' +
         q.options.map(function (opt) {
@@ -264,6 +269,19 @@
           '</button>';
         }).join("") +
       '</div>';
+
+    // 戻るボタン
+    document.getElementById("quiz-back").addEventListener("click", function () {
+      if (currentQuestion > 0) {
+        // 前の質問の回答を削除
+        var prevKey = QUESTIONS[currentQuestion - 1].key;
+        delete answers[prevKey];
+        currentQuestion--;
+        renderQuestion();
+      } else {
+        showScreen("screen-top");
+      }
+    });
 
     // イベント委譲
     container.querySelectorAll(".option-btn").forEach(function (btn) {
