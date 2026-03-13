@@ -4,7 +4,8 @@
 
   // === LIFF設定 ===
   var LIFF_ID = "2009123941-7Zn7qroN";
-  var GAS_URL = "https://script.google.com/macros/s/AKfycbzeFQtwr0M_UsMDjXg-lv7KtUkVossqeuqeJzjfYorMmYhsk4ccyhIYNif0F0kLgKxF/exec";
+  var USER_MASTER_URL = "https://script.google.com/macros/s/AKfycbylb9DgElCxvX8P42y_Vu6EBDlRpxaeaOUF8Jw-kToTxXxpJ-8TKpAnLumn0WBahePI/exec";
+  var RESTAURANT_GAS_URL = "https://script.google.com/macros/s/AKfycbzj2r9Suo7U3bT5nxBMVAKD_GLV3nhNeAn8ozmIAUN5bNWAspQsabXPgzSY3iDaz-xo4g/exec";
 
   // === ユーザー情報 ===
   var lineUid = null;
@@ -54,6 +55,16 @@
       lineUid = profile.userId;
       lineDisplayName = profile.displayName;
 
+      // localStorage旧キー移行（ep_ → tamago_）
+      var oldReg = localStorage.getItem("ep_registered_" + lineUid);
+      var oldUser = localStorage.getItem("ep_user_" + lineUid);
+      if (oldReg && !localStorage.getItem("tamago_registered_" + lineUid)) {
+        localStorage.setItem("tamago_registered_" + lineUid, oldReg);
+      }
+      if (oldUser && !localStorage.getItem("tamago_user_" + lineUid)) {
+        localStorage.setItem("tamago_user_" + lineUid, oldUser);
+      }
+
       checkUserRegistration();
     }).catch(function (err) {
       console.error("LIFF init error:", err);
@@ -62,23 +73,23 @@
   }
 
   // ============================================================
-  //  ユーザー登録チェック（EP診断と共有、キャッシュ優先）
+  //  ユーザー登録チェック（共通ユーザーマスター、キャッシュ優先）
   // ============================================================
   function checkUserRegistration() {
-    var cachedRegistered = localStorage.getItem("ep_registered_" + lineUid);
-    var localUser = localStorage.getItem("ep_user_" + lineUid);
+    var cachedRegistered = localStorage.getItem("tamago_registered_" + lineUid);
+    var localUser = localStorage.getItem("tamago_user_" + lineUid);
 
     if (cachedRegistered === "true" || localUser) {
       userRegistered = true;
       showScreen("screen-top");
 
-      // バックグラウンドでGAS同期
-      if (GAS_URL) {
-        fetch(GAS_URL + "?action=checkUser&uid=" + encodeURIComponent(lineUid))
+      // バックグラウンドでユーザーマスターと同期
+      if (USER_MASTER_URL) {
+        fetch(USER_MASTER_URL + "?action=checkUser&uid=" + encodeURIComponent(lineUid))
           .then(function (res) { return res.json(); })
           .then(function (data) {
             if (!data.registered) {
-              localStorage.removeItem("ep_registered_" + lineUid);
+              localStorage.removeItem("tamago_registered_" + lineUid);
             }
           })
           .catch(function () { /* バックグラウンドなので無視 */ });
@@ -86,18 +97,18 @@
       return;
     }
 
-    // キャッシュなし → GASに問い合わせ
-    if (!GAS_URL) {
+    // キャッシュなし → ユーザーマスターに問い合わせ
+    if (!USER_MASTER_URL) {
       showRegisterScreen();
       return;
     }
 
-    fetch(GAS_URL + "?action=checkUser&uid=" + encodeURIComponent(lineUid))
+    fetch(USER_MASTER_URL + "?action=checkUser&uid=" + encodeURIComponent(lineUid))
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.registered) {
           userRegistered = true;
-          localStorage.setItem("ep_registered_" + lineUid, "true");
+          localStorage.setItem("tamago_registered_" + lineUid, "true");
           showScreen("screen-top");
         } else {
           showRegisterScreen();
@@ -189,18 +200,18 @@
         registeredAt: new Date().toISOString()
       };
 
-      // ローカル保存（EP診断と共有）
-      localStorage.setItem("ep_user_" + lineUid, JSON.stringify(userData));
-      localStorage.setItem("ep_registered_" + lineUid, "true");
+      // ローカル保存（共通キー）
+      localStorage.setItem("tamago_user_" + lineUid, JSON.stringify(userData));
+      localStorage.setItem("tamago_registered_" + lineUid, "true");
       userRegistered = true;
 
-      // GASに送信
-      if (GAS_URL) {
-        fetch(GAS_URL, {
+      // ユーザーマスターGASに送信
+      if (USER_MASTER_URL) {
+        fetch(USER_MASTER_URL, {
           method: "POST",
           body: JSON.stringify({ action: "registerUser", data: userData })
         }).catch(function (err) {
-          console.error("GAS register error:", err);
+          console.error("User master register error:", err);
         });
       }
 
@@ -509,7 +520,7 @@
   //  診断結果をGASに保存
   // ============================================================
   function saveRestaurantDiagnosisResult(top3) {
-    if (!GAS_URL || !lineUid) return;
+    if (!RESTAURANT_GAS_URL || !lineUid) return;
 
     var answersStr = Object.keys(answers).map(function (k) {
       return k + ":" + answers[k];
@@ -525,11 +536,11 @@
       diagnosedAt: new Date().toISOString()
     };
 
-    fetch(GAS_URL, {
+    fetch(RESTAURANT_GAS_URL, {
       method: "POST",
-      body: JSON.stringify({ action: "saveRestaurantDiagnosis", data: data })
+      body: JSON.stringify({ action: "saveDiagnosis", data: data })
     }).catch(function (err) {
-      console.error("GAS save error:", err);
+      console.error("Restaurant GAS save error:", err);
     });
   }
 
