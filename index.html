@@ -8,7 +8,7 @@
   <meta property="og:title" content="USJレストラン診断">
   <meta property="og:description" content="5つの質問であなたにぴったりのUSJレストランを診断！">
   <meta property="og:type" content="website">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260313">
   <script src="https://static.line-scdn.net/liff/edge/versions/2.24.0/sdk.js"></script>
 </head>
 <body>
@@ -26,19 +26,22 @@
   <!-- LIFFエラー画面 -->
   <div id="screen-liff-error" class="screen hidden">
     <div class="container">
+      <img src="images/header.png" alt="USJ攻略" class="header-image">
       <div class="top-content">
-        <div class="top-icon">🍽️</div>
+        <img src="images/character.png" alt="たまご" class="character-image">
         <h1 class="top-title">LINEからアクセスしてね</h1>
-        <p class="top-subtitle">この診断はLINEアプリから<br>ご利用ください。</p>
+        <p class="top-description">この診断はLINEアプリから<br>ご利用ください。</p>
       </div>
+      <img src="images/footer.png" alt="たまご" class="footer-image">
     </div>
   </div>
 
   <!-- 登録画面 -->
   <div id="screen-register" class="screen hidden">
     <div class="container">
+      <img src="images/header.png" alt="USJ攻略" class="header-image">
       <div class="register-box">
-        <div class="top-icon">🍽️</div>
+        <img src="images/character.png" alt="たまご" class="character-image">
         <h2 class="register-title">USJレストラン診断</h2>
         <p id="register-welcome" class="register-welcome"></p>
 
@@ -68,6 +71,7 @@
 
         <button id="register-btn" class="btn-start" disabled>はじめる</button>
       </div>
+      <img src="images/footer.png" alt="たまご" class="footer-image">
     </div>
   </div>
 
@@ -97,17 +101,23 @@
   <!-- トップ画面 -->
   <div id="screen-top" class="screen hidden">
     <div class="container">
+      <img src="images/header.png" alt="USJ攻略" class="header-image">
       <div class="top-content">
-        <div class="top-icon">🍽️</div>
-        <h1 class="top-title">USJレストラン診断</h1>
-        <p class="top-subtitle">5つの質問に答えるだけで<br>あなたにぴったりのレストランが見つかる！</p>
+        <img src="images/character.png" alt="たまご" class="character-image">
+        <h1 class="top-title">あなたにぴったりの<br>レストランは？</h1>
+        <p class="top-description">5つの質問に答えるだけで<br>おすすめのレストランが見つかる！</p>
         <button class="btn-start">診断スタート</button>
         <p class="top-note">※ 食べ歩きフードは本診断の対象外です</p>
+        <div class="info-box">
+          <p class="info-box-title">🍽️ この診断でわかること</p>
+          <ul class="info-box-list">
+            <li>あなたの<strong>好みや条件にぴったり</strong>のレストランを診断</li>
+            <li><strong>メニュー・混雑状況</strong>もすぐわかる</li>
+            <li>対象レストラン <strong>14施設</strong>から最適なお店を提案</li>
+          </ul>
+        </div>
       </div>
-      <div class="top-restaurants">
-        <h3>対象レストラン</h3>
-        <p class="restaurant-count">14<span> 施設</span></p>
-      </div>
+      <img src="images/footer.png" alt="たまご" class="footer-image">
     </div>
   </div>
 
