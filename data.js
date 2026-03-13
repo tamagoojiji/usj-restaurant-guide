@@ -263,7 +263,7 @@ const RESTAURANTS = [
     url: "https://www.usj.co.jp/web/ja/jp/restaurants/three-broomsticks",
     area: "ウィザーディング・ワールド・オブ・ハリー・ポッター",
     areaId: "harrypotter",
-    genre: "イギリス料理（ロースト・フィッシュ&チップスなど）",
+    genre: "肉プレート系",
     budget: "¥2,600〜¥3,500",
     budgetMin: 2600,
     seatType: "テーブル席・テラス席",
