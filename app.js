@@ -455,7 +455,7 @@
       }
 
       html += '<div class="result-info">' +
-        '<div class="info-row"><span class="info-label">📍 エリア</span><span>' + r.area + (r.areaId === "nintendo" ? '（エリア入場整理券が必要です）' : '') + '</span></div>' +
+        '<div class="info-row"><span class="info-label">📍 エリア</span><span>' + r.area + (r.areaId === "nintendo" ? '（エリアに入場しないと利用できません）' : '') + '</span></div>' +
         '<div class="info-row"><span class="info-label">🍽️ ジャンル</span><span>' + r.genre + '</span></div>' +
         '<div class="info-row"><span class="info-label">💰 予算</span><span>' + budgetDisplay + (isDessertMode ? '（デザート）' : '') + '</span></div>' +
         '<div class="info-row"><span class="info-label">🪑 座席</span><span>' + r.seatType + '</span></div>' +
