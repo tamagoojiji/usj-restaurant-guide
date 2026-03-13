@@ -1,4 +1,4 @@
-/* USJレストラン診断 スタイル */
+/* USJレストラン診断 スタイル（EP診断デザイン準拠） */
 
 * {
   margin: 0;
@@ -8,7 +8,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-  background: #f5f5f5;
+  background: #F0F4F8;
   color: #333;
   min-height: 100vh;
 }
@@ -32,14 +32,17 @@ body {
 
 .container {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   padding: 20px 16px;
 }
 
-/* トップ画面 */
+/* ========================
+   トップ画面
+   ======================== */
 .top-content {
   text-align: center;
   padding: 40px 0 20px;
+  animation: fadeSlideIn 0.5s ease;
 }
 
 .top-icon {
@@ -48,9 +51,9 @@ body {
 }
 
 .top-title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
-  color: #e63946;
+  color: #E63946;
   margin-bottom: 8px;
 }
 
@@ -64,16 +67,21 @@ body {
 .btn-start {
   display: block;
   width: 100%;
-  padding: 18px;
-  font-size: 18px;
+  padding: 16px 32px;
+  font-size: 17px;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, #e63946, #ff6b6b);
+  background: #E63946;
   border: none;
-  border-radius: 16px;
+  border-radius: 30px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
   transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(230, 57, 70, 0.35);
 }
 
 .btn-start:active {
@@ -93,7 +101,7 @@ body {
   padding: 20px;
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
 .top-restaurants h3 {
@@ -106,7 +114,7 @@ body {
 .restaurant-count {
   font-size: 36px;
   font-weight: 800;
-  color: #e63946;
+  color: #E63946;
   text-align: center;
 }
 
@@ -116,32 +124,35 @@ body {
   font-weight: 400;
 }
 
-/* 質問画面 */
+/* ========================
+   質問画面
+   ======================== */
 .progress-bar {
   width: 100%;
-  height: 6px;
-  background: #e0e0e0;
-  border-radius: 3px;
+  height: 8px;
+  background: #E8EDF2;
+  border-radius: 4px;
   margin-bottom: 24px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #e63946, #ff6b6b);
-  border-radius: 3px;
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, #E63946, #FF8A94);
+  border-radius: 4px;
+  transition: width 0.4s ease;
 }
 
 .question-number {
-  font-size: 13px;
-  color: #999;
+  font-size: 14px;
+  color: #E63946;
   text-align: center;
   margin-bottom: 8px;
+  font-weight: 700;
 }
 
 .question-title {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   text-align: center;
   margin-bottom: 24px;
@@ -157,29 +168,35 @@ body {
 .option-btn {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
-  padding: 16px 20px;
-  font-size: 16px;
-  font-weight: 500;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 600;
   color: #333;
-  background: #fff;
-  border: 2px solid #e8e8e8;
-  border-radius: 14px;
+  background: #F8FAFC;
+  border: 2px solid #DDE3EA;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
   text-align: left;
+}
+
+.option-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #B0C4DE;
 }
 
 .option-btn:active,
 .option-btn.selected {
-  background: #fff0f0;
-  border-color: #e63946;
+  background: #FFF0F1;
+  border-color: #E63946;
   transform: scale(0.98);
 }
 
 .option-icon {
-  font-size: 24px;
+  font-size: 28px;
   flex-shrink: 0;
 }
 
@@ -187,13 +204,16 @@ body {
   flex: 1;
 }
 
-/* 結果画面 */
+/* ========================
+   結果画面
+   ======================== */
 .result-title {
   font-size: 22px;
   font-weight: 800;
   text-align: center;
-  color: #e63946;
+  color: #E63946;
   margin-bottom: 4px;
+  animation: fadeSlideIn 0.5s ease;
 }
 
 .result-subtitle {
@@ -213,25 +233,30 @@ body {
 .result-card {
   background: #fff;
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px 20px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  animation: fadeSlideIn 0.5s ease;
 }
 
 .result-card.top-pick {
-  border: 2px solid #e63946;
-  box-shadow: 0 4px 16px rgba(230, 57, 70, 0.15);
+  border: 3px solid #E63946;
+  box-shadow: 0 4px 20px rgba(230, 57, 70, 0.15);
 }
 
 .result-rank {
-  font-size: 14px;
+  display: inline-block;
+  padding: 2px 12px;
+  font-size: 12px;
   font-weight: 700;
-  color: #e63946;
-  margin-bottom: 8px;
+  color: #E63946;
+  background: #FFF0F1;
+  border-radius: 20px;
+  margin-bottom: 10px;
 }
 
 .result-name {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 800;
   color: #333;
   margin-bottom: 12px;
@@ -240,8 +265,8 @@ body {
 .collab-badge {
   display: inline-block;
   padding: 4px 12px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: #fff;
   background: linear-gradient(135deg, #f59e0b, #ef4444);
   border-radius: 20px;
@@ -255,7 +280,7 @@ body {
 .info-row {
   display: flex;
   padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #F0F4F8;
   font-size: 14px;
   gap: 8px;
 }
@@ -266,7 +291,7 @@ body {
 
 .info-label {
   flex-shrink: 0;
-  font-weight: 600;
+  font-weight: 700;
   color: #555;
   min-width: 90px;
 }
@@ -286,13 +311,13 @@ body {
 
 .reason-tag {
   display: inline-block;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 12px;
-  background: #f0fdf4;
-  color: #16a34a;
-  border-radius: 8px;
-  margin: 0 4px 4px 0;
-  font-weight: 500;
+  background: #E8F5E9;
+  color: #2E7D32;
+  border-radius: 20px;
+  margin: 0 4px 6px 0;
+  font-weight: 600;
 }
 
 .result-menu ul,
@@ -313,13 +338,14 @@ body {
   content: "•";
   position: absolute;
   left: 0;
-  color: #999;
+  color: #B0C4DE;
 }
 
 .result-collab-menu {
-  background: #fffbeb;
+  background: #FFF8E1;
+  border: 1px solid #FFE082;
   border-radius: 12px;
-  padding: 12px;
+  padding: 14px;
   margin-bottom: 16px;
 }
 
@@ -335,12 +361,13 @@ body {
 }
 
 .result-tips {
-  background: #f0f9ff;
+  background: #E3F2FD;
+  border: 1px solid #BBDEFB;
   border-radius: 12px;
-  padding: 12px;
+  padding: 14px;
   margin-bottom: 12px;
   font-size: 13px;
-  color: #555;
+  color: #1565C0;
 }
 
 .result-tips p {
@@ -357,26 +384,36 @@ body {
 .btn-top {
   display: block;
   width: 100%;
-  padding: 16px;
-  font-size: 16px;
+  padding: 14px 32px;
+  font-size: 17px;
   font-weight: 700;
-  border-radius: 14px;
+  border-radius: 30px;
   cursor: pointer;
   margin-bottom: 12px;
-  transition: transform 0.15s;
+  transition: transform 0.15s, box-shadow 0.15s;
   border: none;
 }
 
 .btn-restart {
   color: #fff;
-  background: linear-gradient(135deg, #e63946, #ff6b6b);
+  background: #E63946;
   box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
 }
 
+.btn-restart:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(230, 57, 70, 0.35);
+}
+
 .btn-top {
-  color: #666;
-  background: #fff;
-  border: 2px solid #e0e0e0;
+  color: #555;
+  background: #E8EDF2;
+  border: none;
+}
+
+.btn-top:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .btn-restart:active,
@@ -385,7 +422,7 @@ body {
 }
 
 .official-link {
-  color: #e63946;
+  color: #E63946;
   text-decoration: none;
   font-weight: 600;
 }
@@ -394,17 +431,20 @@ body {
   text-decoration: underline;
 }
 
-/* ローディング画面 */
+/* ========================
+   ローディング画面
+   ======================== */
 .loading-content {
   text-align: center;
   padding: 60px 20px;
+  animation: fadeIn 0.3s ease;
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #e0e0e0;
-  border-top-color: #e63946;
+  border: 4px solid #E8EDF2;
+  border-top-color: #E63946;
   border-radius: 50%;
   margin: 0 auto 16px;
   animation: spin 0.8s linear infinite;
@@ -414,12 +454,24 @@ body {
   to { transform: rotate(360deg); }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .loading-text {
   font-size: 14px;
   color: #888;
 }
 
-/* 登録画面 */
+/* ========================
+   登録画面
+   ======================== */
 .register-box {
   background: #fff;
   border-radius: 16px;
@@ -427,6 +479,7 @@ body {
   text-align: center;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   margin-top: 40px;
+  animation: fadeSlideIn 0.5s ease;
 }
 
 .register-title {
@@ -438,7 +491,7 @@ body {
 
 .register-welcome {
   font-size: 14px;
-  color: #e63946;
+  color: #E63946;
   font-weight: 600;
   margin-bottom: 20px;
 }
@@ -464,17 +517,17 @@ body {
 .form-select {
   flex: 1;
   padding: 10px 8px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #DDE3EA;
   border-radius: 10px;
   font-size: 14px;
   color: #333;
-  background: #fafafa;
+  background: #F8FAFC;
   appearance: auto;
 }
 
 .form-select:focus {
   outline: none;
-  border-color: #e63946;
+  border-color: #E63946;
 }
 
 .gender-buttons {
@@ -485,9 +538,9 @@ body {
 .gender-btn {
   flex: 1;
   padding: 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  background: #fafafa;
+  border: 2px solid #DDE3EA;
+  border-radius: 12px;
+  background: #F8FAFC;
   font-size: 15px;
   font-weight: 700;
   color: #555;
@@ -495,10 +548,14 @@ body {
   transition: all 0.2s;
 }
 
+.gender-btn:hover {
+  border-color: #B0C4DE;
+}
+
 .gender-btn.selected {
-  background: #fff0f0;
-  border-color: #e63946;
-  color: #e63946;
+  background: #FFF0F1;
+  border-color: #E63946;
+  color: #E63946;
 }
 
 .privacy-agree {
@@ -518,20 +575,22 @@ body {
 .checkbox-label input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #e63946;
+  accent-color: #E63946;
 }
 
 .privacy-link-inline {
-  color: #e63946;
+  color: #E63946;
   text-decoration: underline;
 }
 
 .btn-start:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* プライバシーポリシーモーダル */
+/* ========================
+   プライバシーポリシーモーダル
+   ======================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -561,7 +620,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #E8EDF2;
   position: sticky;
   top: 0;
   background: #fff;
@@ -572,7 +631,7 @@ body {
   width: 32px;
   height: 32px;
   border: none;
-  background: #f0f0f0;
+  background: #E8EDF2;
   border-radius: 50%;
   font-size: 20px;
   color: #666;
@@ -580,6 +639,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: #DDE3EA;
 }
 
 .modal-body {
@@ -595,4 +659,22 @@ body {
   color: #333;
   margin-top: 16px;
   margin-bottom: 8px;
+}
+
+/* ========================
+   レスポンシブ
+   ======================== */
+@media (max-width: 480px) {
+  .top-title {
+    font-size: 20px;
+  }
+  .question-title {
+    font-size: 16px;
+  }
+  .option-icon {
+    font-size: 24px;
+  }
+  .result-name {
+    font-size: 15px;
+  }
 }
