@@ -46,7 +46,13 @@
   function initLiff() {
     liff.init({ liffId: LIFF_ID }).then(function () {
       if (!liff.isLoggedIn()) {
-        liff.login();
+        // LINE内ブラウザならログインを促す、外部ブラウザなら登録なしで進む
+        if (liff.isInClient()) {
+          liff.login();
+          return;
+        }
+        // 外部ブラウザ → 登録なしで診断のみ利用可能
+        showScreen("screen-top");
         return;
       }
       return liff.getProfile();
@@ -68,7 +74,8 @@
       checkUserRegistration();
     }).catch(function (err) {
       console.error("LIFF init error:", err);
-      showScreen("screen-liff-error");
+      // LIFF初期化失敗 → 登録なしで診断のみ利用可能
+      showScreen("screen-top");
     });
   }
 
