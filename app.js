@@ -3,7 +3,7 @@
   "use strict";
 
   // === LIFF設定 ===
-  var LIFF_ID = "2009123941-7Zn7qroN";
+  var LIFF_ID = "2009540998-dXlvsJUc";
   var USER_MASTER_URL = "https://script.google.com/macros/s/AKfycbylb9DgElCxvX8P42y_Vu6EBDlRpxaeaOUF8Jw-kToTxXxpJ-8TKpAnLumn0WBahePI/exec";
   var RESTAURANT_GAS_URL = "https://script.google.com/macros/s/AKfycbzj2r9Suo7U3bT5nxBMVAKD_GLV3nhNeAn8ozmIAUN5bNWAspQsabXPgzSY3iDaz-xo4g/exec";
 
