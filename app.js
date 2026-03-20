@@ -509,13 +509,23 @@
         '</div>';
     });
 
-    html += '<button class="btn-restart" id="btn-restart">もう一度診断する</button>' +
-      '<button class="btn-top" id="btn-top">トップに戻る</button>';
+    html += '<button class="btn-restart" id="btn-restart">レストラン診断に戻る</button>';
+    if (window.parent !== window) {
+      html += '<button class="btn-top" id="back-to-main-btn">メインサイトにもどる</button>';
+    } else {
+      html += '<button class="btn-top" id="btn-top">トップに戻る</button>';
+    }
 
     container.innerHTML = html;
 
     document.getElementById("btn-restart").addEventListener("click", startDiagnosis);
-    document.getElementById("btn-top").addEventListener("click", function () { showScreen("screen-top"); });
+    if (window.parent !== window) {
+      document.getElementById("back-to-main-btn").addEventListener("click", function () {
+        window.parent.postMessage({ type: "back-to-main" }, "*");
+      });
+    } else {
+      document.getElementById("btn-top").addEventListener("click", function () { showScreen("screen-top"); });
+    }
 
     showScreen("screen-result");
 
