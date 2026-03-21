@@ -227,7 +227,7 @@ const RESTAURANTS = [
     collab: null,
     collabMenu: null,
     features: "パーク内唯一の本格和食レストラン。御膳スタイルで洋食に飽きた時に重宝。事前予約（公式サイトから・1ヶ月前〜）・当日予約（店舗前QRコード）可能。混雑少なめだが予約推奨。",
-    foodCategories: ["和食", "デザート・スイーツ"]
+    foodCategories: ["和食（うどん・天ぷら）", "デザート・スイーツ"]
   },
   {
     id: "dragons",
