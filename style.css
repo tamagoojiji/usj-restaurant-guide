@@ -559,6 +559,13 @@ body {
   margin-bottom: 8px;
 }
 
+.register-subtitle {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
 .register-welcome {
   font-size: 14px;
   color: #4A90D9;
